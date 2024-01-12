@@ -16,7 +16,7 @@ COMING SOON
 
 Long URL
 ```
-curl -fsSL https://raw.githubusercontent.com/ceroberoz/Parsed-GCP-IP-address-ranges/main/fetch-gcp-ip-ranges.sh | sh
+curl -fsSL https://raw.githubusercontent.com/ceroberoz/Parsed-AWS-Cloudfront/main/fetch-aws-cloudfront-ip.sh | sh
 ```
 
 # Misc
