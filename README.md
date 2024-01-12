@@ -3,6 +3,21 @@
 # Parsed-AWS-Cloudfront
 Parsed AWS Cloudfront IP address.
 
+---
+
+Too impatient waiting for daily update? Run `fetch-aws-cloudfront-ip.sh` script directly on your Linux / Mac terminal.
+
+Required `curl` and `jq` installed before running Shell below.
+
+Short URL
+```
+COMING SOON
+```
+
+Long URL
+```
+curl -fsSL https://raw.githubusercontent.com/ceroberoz/Parsed-GCP-IP-address-ranges/main/fetch-gcp-ip-ranges.sh | sh
+```
 
 # Misc
 
