@@ -21,7 +21,7 @@ curl -fsSL https://raw.githubusercontent.com/ceroberoz/Parsed-AWS-Cloudfront/mai
 
 # Misc
 
-Need Google Cloud Platform with same format? See my other repository 
+Need parsed IP of all GCP service per region? See my other repository
 
 https://github.com/ceroberoz/Parsed-GCP-IP-address-ranges
 
