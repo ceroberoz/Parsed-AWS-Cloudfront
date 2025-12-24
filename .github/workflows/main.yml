@@ -25,21 +25,21 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
           persist-credentials: true
 
-      - name: Run Fetch AWS IP Script
+      - name: Run Fetch fetch-aws-cloudfront-ip.sh Script
         run: |
           # Verify script existence before chmod
-          if [ -f "./fetch-aws-ip-ranges.sh" ]; then
-            chmod +x fetch-aws-ip-ranges.sh
+          if [ -f "./fetch-aws-cloudfront-ip.sh" ]; then
+            chmod +x fetch-aws-cloudfront-ip.sh
             ./fetch-aws-ip-ranges.sh
           else
-            echo "Error: fetch-aws-ip-ranges.sh not found in $(pwd)"
+            echo "Error: fetch-aws-cloudfront-ip.sh not found in $(pwd)"
             exit 1
           fi
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "[skip ci] - updated AWS IP ranges"
+          commit_message: "[skip ci] - updated AWS Cloudfront IP"
           # Target the specific branch identified during checkout
           branch: ${{ github.event.pull_request.head.ref || github.ref_name }}
         env:
