@@ -2,20 +2,16 @@ name: auto-fetch-runner
 
 on:
   push:
-    branches:
-      - main
-  pull_request: # Changed from pull_request_target for security
-    branches:
-      - main
+    branches: [main]
+  pull_request_target:
+    branches: [main]
   schedule:
     - cron: '0 0 * * *'
-  workflow_dispatch: # Added for manual verification
+  workflow_dispatch: # Allows manual trigger for testing
 
 jobs:
   auto-fetch-runner:
     runs-on: ubuntu-latest
-    
-    # Use standard GITHUB_TOKEN where possible; use PAT only if triggering other workflows
     permissions:
       contents: write
 
@@ -23,26 +19,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # Use persist-credentials to ensure git commands later use this token
-          persist-credentials: true
           token: ${{ secrets.PAT }}
-          # Automatically detects the correct repository and ref for push/schedule
-          # Only specify repository/ref if you are explicitly targeting a cross-repo PR
-          repository: ${{ github.repository }} 
-          ref: ${{ github.head_ref || github.ref_name }}
+          # Refined Logic: Uses the PR head if it exists, otherwise defaults to the current repo
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          persist-credentials: true
 
-      - name: Run Fetch AWS CloudfrontIP Script
+      - name: Run Fetch AWS IP Script
         run: |
-          # Verify file existence before execution
-          if [ -f "./fetch-aws-cloudfront-ip.sh" ]; then
-            bash ./fetch-aws-cloudfront-ip.sh
+          # Verify script existence before chmod
+          if [ -f "./fetch-aws-ip-ranges.sh" ]; then
+            chmod +x fetch-aws-ip-ranges.sh
+            ./fetch-aws-ip-ranges.sh
           else
-            echo "Error: script not found."
+            echo "Error: fetch-aws-ip-ranges.sh not found in $(pwd)"
             exit 1
           fi
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: update AWS CloudFront IP ranges [skip ci]"
-          # The action automatically uses the token provided in the checkout step
+          commit_message: "[skip ci] - updated AWS IP ranges"
+          # Target the specific branch identified during checkout
+          branch: ${{ github.event.pull_request.head.ref || github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
