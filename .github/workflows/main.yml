@@ -4,34 +4,41 @@ on:
   push:
     branches:
       - main
-  pull_request_target:
-  
+  pull_request: # Changed from pull_request_target for security
+    branches:
+      - main
   schedule:
-    - cron: '0 0 * * *' # Schedule to run at midnight (UTC time)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Added for manual verification
 
 jobs:
   auto-fetch-runner:
     runs-on: ubuntu-latest
-
+    
+    # Use standard GITHUB_TOKEN where possible; use PAT only if triggering other workflows
     permissions:
       contents: write
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.PAT }}
-        repository: ${{ github.event.pull_request.head.repo.full_name }}
-        ref: ${{ github.head_ref }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Logical branch selection
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.PAT }}
 
-    - name: Run Fetch AWS CloudfrontIP Script
-      run: |
-        chmod +x fetch-aws-cloudfront-ip.sh
-        ./fetch-aws-cloudfront-ip.sh
+      - name: Run Fetch AWS CloudfrontIP Script
+        run: |
+          # Verify file existence before execution
+          if [ -f "./fetch-aws-cloudfront-ip.sh" ]; then
+            bash ./fetch-aws-cloudfront-ip.sh
+          else
+            echo "Error: script not found."
+            exit 1
+          fi
 
-    - name: Commit and push changes
-      uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        commit_message: "[skip ci] updated"
-      env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update AWS CloudFront IP ranges [skip ci]"
+          # The action automatically uses the token provided in the checkout step
