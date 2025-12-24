@@ -23,9 +23,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # Logical branch selection
-          ref: ${{ github.head_ref || github.ref_name }}
+          # Use persist-credentials to ensure git commands later use this token
+          persist-credentials: true
           token: ${{ secrets.PAT }}
+          # Automatically detects the correct repository and ref for push/schedule
+          # Only specify repository/ref if you are explicitly targeting a cross-repo PR
+          repository: ${{ github.repository }} 
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Run Fetch AWS CloudfrontIP Script
         run: |
