@@ -20,7 +20,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.PAT }}
-          # Refined Logic: Uses the PR head if it exists, otherwise defaults to the current repo
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
           persist-credentials: true
@@ -30,9 +29,10 @@ jobs:
           # Verify script existence before chmod
           if [ -f "./fetch-aws-cloudfront-ip.sh" ]; then
             chmod +x fetch-aws-cloudfront-ip.sh
-            ./fetch-aws-ip-ranges.sh
+            ./fetch-aws-cloudfront-ip.sh
           else
-            echo "Error: fetch-aws-cloudfront-ip.sh not found in $(pwd)"
+            echo "Error: fetch-aws-cloudfront-ip.sh not found."
+            ls -la
             exit 1
           fi
 
@@ -40,7 +40,8 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "[skip ci] - updated AWS Cloudfront IP"
-          # Target the specific branch identified during checkout
           branch: ${{ github.event.pull_request.head.ref || github.ref_name }}
+          # Ensures the push uses the PAT defined in the checkout
+          push_options: '--force' 
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
